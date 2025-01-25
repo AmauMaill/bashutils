@@ -1,0 +1,32 @@
+#!/bin/bash
+
+# Check if an input file is provided
+if [ -z "$1" ]; then
+    echo "Usage: $0 <input.pdf>"
+    exit 1
+fi
+
+# Define the input file path
+input_file="$1"
+
+# Create a temporary directory in /tmp
+tmp_dir=$(mktemp -d -t gsbook_tmp_XXXXXX)
+
+# Copy the input file to the temporary directory
+cp "$input_file" "$tmp_dir/"
+
+# Define the path to the copied input file in the temporary directory
+tmp_input_file="$tmp_dir/$(basename "$input_file")"
+
+# Define the output file name
+output_file="$1"
+
+# Run Ghostscript to compress the PDF
+gs -sDEVICE=pdfwrite -dCompatibilityLevel=1.4 -dPDFSETTINGS=/ebook -dNOPAUSE -dQUIET -dBATCH -sOutputFile="$output_file" "$tmp_input_file"
+
+# Check if the command was successful
+if [ $? -eq 0 ]; then
+    echo "Compression successful. Output file: $output_file"
+else
+    echo "Compression failed."
+fi
